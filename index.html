@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Frequencia</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Bebas+Neue&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #080808;
+      --bg2: #0f0f0f;
+      --fg: #f0ede6;
+      --fg-dim: #7a7670;
+      --neon: #c6f135;
+      --line: rgba(240,237,230,0.08);
+      --mono: 'Space Mono', monospace;
+      --display: 'Bebas Neue', sans-serif;
+      --body: 'DM Sans', sans-serif;
+    }
+
+    html { scroll-behavior: smooth; }
+    body { background: var(--bg); color: var(--fg); font-family: var(--body); font-size: 15px; line-height: 1.6; overflow-x: hidden; }
+
+    /* GRAIN */
+    body::before { content: ''; position: fixed; inset: 0; z-index: 9999; pointer-events: none; opacity: .032;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      background-size: 200px; }
+
+    /* NAV */
+    nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 20px 40px; border-bottom: 1px solid var(--line); background: rgba(8,8,8,0.88); backdrop-filter: blur(12px); }
+    .nav-logo { font-family: var(--display); font-size: 22px; letter-spacing: 2px; color: var(--fg); text-decoration: none; }
+    .nav-links { display: flex; gap: 32px; list-style: none; }
+    .nav-links a { font-family: var(--mono); font-size: 11px; color: var(--fg-dim); text-decoration: none; letter-spacing: 1.5px; text-transform: uppercase; transition: color .2s; }
+    .nav-links a:hover { color: var(--fg); }
+    .nav-cta { font-family: var(--mono); font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; border: 1px solid var(--fg-dim); color: var(--fg); background: none; padding: 9px 20px; cursor: pointer; text-decoration: none; transition: all .2s; }
+    .nav-cta:hover { background: var(--fg); color: var(--bg); }
+
+    /* HERO */
+    #hero { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; padding: 120px 40px 60px; position: relative; border-bottom: 1px solid var(--line); }
+    .hero-tag { font-family: var(--mono); font-size: 11px; letter-spacing: 2px; color: var(--fg-dim); margin-bottom: 24px; display: flex; align-items: center; gap: 16px; }
+    .hero-tag::before, .hero-tag::after { content: ''; flex: 0 0 40px; height: 1px; background: var(--neon); opacity: .6; }
+    .hero-title { font-family: var(--display); font-size: clamp(72px, 12vw, 160px); line-height: .92; letter-spacing: 3px; margin-bottom: 32px; }
+    .hero-sub { font-family: var(--mono); font-size: 12px; letter-spacing: 3px; color: var(--fg-dim); text-transform: uppercase; margin-bottom: 48px; }
+    .hero-btns { display: flex; gap: 16px; flex-wrap: wrap; }
+    .btn-primary { font-family: var(--mono); font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; background: var(--fg); color: var(--bg); padding: 13px 28px; text-decoration: none; transition: opacity .2s; }
+    .btn-primary:hover { opacity: .8; }
+    .btn-ghost { font-family: var(--mono); font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; border: 1px solid var(--fg-dim); color: var(--fg); padding: 13px 28px; text-decoration: none; transition: all .2s; }
+    .btn-ghost:hover { border-color: var(--fg); }
+    .hero-scroll { position: absolute; bottom: 40px; left: 40px; font-family: var(--mono); font-size: 10px; letter-spacing: 2px; color: var(--fg-dim); }
+
+    /* SECTIONS */
+    section { padding: 100px 40px; border-bottom: 1px solid var(--line); }
+    .section-label { font-family: var(--mono); font-size: 10px; letter-spacing: 3px; color: var(--neon); text-transform: uppercase; margin-bottom: 16px; display: flex; align-items: center; gap: 12px; }
+    .section-label::after { content: ''; flex: 0 0 48px; height: 1px; background: var(--neon); opacity: .5; }
+    .section-title { font-family: var(--display); font-size: clamp(72px, 11vw, 140px); line-height: .88; letter-spacing: 2px; margin-bottom: 48px; }
+    .section-title .neon { color: var(--neon); }
+
+    /* EVENTS */
+    #events .section-title { margin-bottom: 20px; }
+    .events-intro { color: var(--fg-dim); font-size: 14px; margin-bottom: 48px; max-width: 600px; }
+    .events-grid { display: flex; flex-direction: column; }
+    .event-row { display: grid; grid-template-columns: 60px 1fr auto auto; align-items: center; gap: 24px; padding: 22px 0; border-top: 1px solid var(--line); transition: background .15s; }
+    .event-row:last-child { border-bottom: 1px solid var(--line); }
+    .event-row:hover { background: rgba(240,237,230,0.03); }
+    .event-num { font-family: var(--mono); font-size: 11px; color: var(--fg-dim); }
+    .event-info { display: flex; flex-direction: column; gap: 3px; }
+    .event-name { font-family: var(--display); font-size: 26px; letter-spacing: 1px; }
+    .event-city { font-family: var(--mono); font-size: 10px; color: var(--fg-dim); letter-spacing: 1.5px; text-transform: uppercase; }
+    .event-date { font-family: var(--mono); font-size: 12px; color: var(--fg-dim); white-space: nowrap; }
+    .event-genre { font-family: var(--mono); font-size: 10px; letter-spacing: 1.5px; color: var(--neon); border: 1px solid rgba(198,241,53,0.25); padding: 4px 10px; text-transform: uppercase; }
+
+    /* CALENDAR */
+    #calendar { background: var(--bg2); }
+    .calendar-wrapper { max-width: 700px; }
+    .cal-nav { display: flex; align-items: center; gap: 24px; margin-bottom: 32px; }
+    .cal-nav button { background: none; border: 1px solid var(--line); color: var(--fg); font-family: var(--mono); font-size: 13px; width: 36px; height: 36px; cursor: pointer; transition: all .2s; }
+    .cal-nav button:hover { border-color: var(--fg); }
+    .cal-month-label { font-family: var(--display); font-size: 36px; letter-spacing: 2px; }
+    .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
+    .cal-header { font-family: var(--mono); font-size: 10px; letter-spacing: 2px; color: var(--fg-dim); text-align: center; padding: 8px 0; text-transform: uppercase; }
+    .cal-day { aspect-ratio: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 8px 4px 4px; position: relative; border: 1px solid transparent; font-family: var(--mono); font-size: 12px; color: var(--fg-dim); transition: border-color .15s; min-height: 56px; }
+    .cal-day.has-event { color: var(--fg); cursor: pointer; border-color: var(--line); }
+    .cal-day.has-event:hover { border-color: var(--fg-dim); background: rgba(240,237,230,0.03); }
+    .cal-day.empty { opacity: 0; pointer-events: none; }
+    .cal-dots { display: flex; gap: 3px; flex-wrap: wrap; justify-content: center; margin-top: 4px; }
+    .cal-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--neon); opacity: .8; }
+    .cal-day.today .cal-day-num { background: var(--neon); color: var(--bg); border-radius: 50%; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; }
+    .cal-tooltip { display: none; position: absolute; top: calc(100% + 8px); left: 50%; transform: translateX(-50%); z-index: 50; background: #1a1a1a; border: 1px solid rgba(240,237,230,0.15); padding: 12px 14px; min-width: 190px; font-family: var(--mono); font-size: 10px; color: var(--fg); pointer-events: none; }
+    .cal-day:hover .cal-tooltip { display: block; }
+    .cal-tooltip-event { margin-bottom: 7px; line-height: 1.5; }
+    .cal-tooltip-event:last-child { margin-bottom: 0; }
+    .cal-tooltip-city { color: var(--fg-dim); }
+
+    /* INFILTRADOS */
+    #infiltrados { background: var(--bg); }
+    .infiltrados-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; }
+    .infiltrados-quote { font-family: var(--display); font-size: clamp(28px, 4vw, 48px); line-height: 1.1; color: var(--fg-dim); margin-bottom: 24px; }
+    .infiltrados-text { color: var(--fg-dim); font-size: 14px; line-height: 1.8; margin-bottom: 32px; }
+
+    /* SUBMIT */
+    #submit { background: var(--bg2); }
+    .submit-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: start; }
+    .submit-copy p { color: var(--fg-dim); font-size: 14px; line-height: 1.8; }
+    .submit-form { display: flex; flex-direction: column; gap: 14px; }
+    .form-field { display: flex; flex-direction: column; gap: 6px; }
+    .form-field label { font-family: var(--mono); font-size: 10px; letter-spacing: 2px; color: var(--fg-dim); text-transform: uppercase; }
+    .form-field input, .form-field textarea { background: rgba(240,237,230,0.04); border: 1px solid var(--line); color: var(--fg); font-family: var(--body); font-size: 14px; padding: 12px 14px; outline: none; transition: border-color .2s; resize: none; }
+    .form-field input:focus, .form-field textarea:focus { border-color: var(--neon); }
+    .form-field input::placeholder, .form-field textarea::placeholder { color: #2a2a2a; }
+    .form-submit { font-family: var(--mono); font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; background: var(--fg); color: var(--bg); border: none; padding: 14px 28px; cursor: pointer; transition: opacity .2s; align-self: flex-start; }
+    .form-submit:hover { opacity: .8; }
+    .form-submit:disabled { opacity: .4; cursor: not-allowed; }
+    .form-msg { font-family: var(--mono); font-size: 11px; color: #ff4444; margin-top: 8px; }
+    .success-msg { display: none; font-family: var(--mono); font-size: 12px; color: var(--fg-dim); padding: 20px 0; line-height: 2; border-left: 2px solid var(--neon); padding-left: 16px; }
+    .success-msg em { color: var(--neon); font-style: normal; }
+
+    /* CONTACT */
+    #contact { background: var(--bg); }
+    .contact-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0; }
+    .contact-item { padding: 40px; border: 1px solid var(--line); }
+    .contact-label { font-family: var(--mono); font-size: 10px; letter-spacing: 2px; color: var(--fg-dim); text-transform: uppercase; margin-bottom: 12px; }
+    .contact-value { font-family: var(--display); font-size: 22px; letter-spacing: 1px; }
+    .contact-value a { color: var(--fg); text-decoration: none; transition: color .2s; }
+    .contact-value a:hover { color: var(--neon); }
+
+    /* FOOTER */
+    footer { padding: 24px 40px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--line); }
+    .footer-logo { font-family: var(--display); font-size: 18px; letter-spacing: 2px; }
+    .footer-copy { font-family: var(--mono); font-size: 10px; color: var(--fg-dim); letter-spacing: 1px; }
+
+    @media (max-width: 768px) {
+      nav { padding: 16px 20px; }
+      .nav-links { display: none; }
+      #hero { padding: 100px 20px 60px; }
+      section { padding: 72px 20px; }
+      footer { padding: 20px; flex-direction: column; gap: 8px; text-align: center; }
+      .infiltrados-inner, .submit-inner { grid-template-columns: 1fr; gap: 40px; }
+      .event-row { grid-template-columns: 40px 1fr auto; }
+      .event-genre { display: none; }
+      .contact-item { padding: 28px 20px; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="#">Frequencia.</a>
+  <ul class="nav-links">
+    <li><a href="#events">Eventos</a></li>
+    <li><a href="#calendar">Calendario</a></li>
+    <li><a href="#infiltrados">Infiltrados</a></li>
+    <li><a href="#submit">Publicar</a></li>
+    <li><a href="#contact">Contacto</a></li>
+  </ul>
+  <a class="nav-cta" href="#submit">Submit Event</a>
+</nav>
+
+<section id="hero">
+  <p class="hero-tag">· Perú · Underground</p>
+  <h1 class="hero-title">FREQUENCIA.</h1>
+  <p class="hero-sub">El punto de conexión para la música electrónica en Perú.</p>
+  <div class="hero-btns">
+    <a class="btn-primary" href="#events">Próximos eventos</a>
+    <a class="btn-ghost" href="#infiltrados">Sé parte de Infiltrados</a>
+  </div>
+  <span class="hero-scroll">Scroll ↓</span>
+</section>
+
+<section id="events">
+  <p class="section-label">Próximos eventos</p>
+  <h2 class="section-title">UPCOMING<br><span class="neon">EVENTS.</span></h2>
+  <p class="events-intro">Desde la escena más pequeña hasta las fiestas consolidadas — todo lo que está pasando en Perú.</p>
+  <div class="events-grid" id="events-list"></div>
+</section>
+
+<section id="calendar">
+  <p class="section-label">Agenda</p>
+  <h2 class="section-title">MONTHLY<br><span class="neon">CALENDAR.</span></h2>
+  <div class="calendar-wrapper">
+    <div class="cal-nav">
+      <button id="cal-prev">←</button>
+      <span class="cal-month-label" id="cal-label"></span>
+      <button id="cal-next">→</button>
+    </div>
+    <div class="cal-grid" id="cal-grid"></div>
+  </div>
+</section>
+
+<section id="infiltrados">
+  <p class="section-label">Infiltrados</p>
+  <div class="infiltrados-inner">
+    <div>
+      <h2 class="section-title">INSIDE<br><span class="neon">ACCESS.</span></h2>
+    </div>
+    <div>
+      <p class="infiltrados-quote">"Real people inside the scene capturing authentic moments."</p>
+      <p class="infiltrados-text">Frequencia infiltrados son personas reales dentro de la escena — capturando momentos auténticos desde adentro de los eventos. Sin poses. Sin filtros. Solo la escena.</p>
+      <a class="btn-ghost" href="#submit">Sé un Infiltrado</a>
+    </div>
+  </div>
+</section>
+
+<section id="submit">
+  <p class="section-label">Publica con nosotros</p>
+  <h2 class="section-title">SUBMIT YOUR<br><span class="neon">EVENT.</span></h2>
+  <div class="submit-inner">
+    <div class="submit-copy">
+      <p>Si estás organizando un evento de música electrónica en Perú, publícalo con nosotros.<br><br>La escena no para.<br>Nosotros tampoco.</p>
+    </div>
+    <div>
+      <div class="submit-form" id="submit-form">
+        <div class="form-field"><label>Nombre completo</label><input type="text" id="f-nombre" placeholder="Tu nombre"/></div>
+        <div class="form-field"><label>Nombre del evento</label><input type="text" id="f-evento" placeholder="Nombre del evento"/></div>
+        <div class="form-field"><label>Fecha</label><input type="date" id="f-fecha"/></div>
+        <div class="form-field"><label>Instagram o correo</label><input type="text" id="f-contacto" placeholder="@tuinstagram o tu@correo.com"/></div>
+        <div class="form-field"><label>Descripción</label><textarea id="f-desc" rows="4" placeholder="Cuéntanos sobre tu evento..."></textarea></div>
+        <button class="form-submit" id="f-btn" onclick="handleSubmit()">Submit Event →</button>
+        <div class="form-msg" id="f-msg"></div>
+      </div>
+      <div class="success-msg" id="success-msg">
+        Solicitud enviada.<br>
+        Gracias por querer ser parte de <em>frequencia.pe</em>.<br>
+        Pronto nos pondremos en contacto contigo.
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="contact">
+  <p class="section-label">Contacto</p>
+  <h2 class="section-title">GET IN<br><span class="neon">TOUCH.</span></h2>
+  <div class="contact-grid">
+    <div class="contact-item">
+      <p class="contact-label">Instagram</p>
+      <p class="contact-value"><a href="https://instagram.com/frequencia.pe" target="_blank">@frequencia.pe</a></p>
+    </div>
+    <div class="contact-item">
+      <p class="contact-label">TikTok</p>
+      <p class="contact-value"><a href="https://tiktok.com/@frequencia.pe" target="_blank">@frequencia.pe</a></p>
+    </div>
+    <div class="contact-item">
+      <p class="contact-label">WhatsApp</p>
+      <p class="contact-value">
+        <a href="https://wa.me/51967306530" target="_blank">+51 967 306 530</a><br>
+        <a href="https://wa.me/51914795953" target="_blank">+51 914 795 953</a>
+      </p>
+    </div>
+    <div class="contact-item">
+      <p class="contact-label">Ubicación</p>
+      <p class="contact-value">Perú 🇵🇪</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <span class="footer-logo">Frequencia.pe</span>
+  <span class="footer-copy">© 2026 Frequencia · La escena no para.</span>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script>
+emailjs.init('GdW1qKZaYNY_UO8u8');
+
+const events = [
+  { name: 'GRID SYSTEM',         date: '2026-05-08', city: 'Lima',            genre: 'Techno' },
+  { name: 'MOTION',              date: '2026-05-30', city: 'Lima',            genre: 'Hard Techno' },
+  { name: 'AND DANCE',           date: '2026-05-16', city: 'Lima',            genre: 'House' },
+  { name: 'Naya Breda',          date: '2026-05-06', city: 'Trujillo',        genre: 'Techno' },
+  { name: 'EXIT',                date: '2026-05-07', city: 'Trujillo',        genre: 'Techno' },
+  { name: 'SUPER',               date: '2026-05-08', city: 'Trujillo',        genre: 'Techno' },
+  { name: 'ARZENIC',             date: '2026-05-09', city: 'Trujillo',        genre: 'House' },
+  { name: 'Matias Santibañez',   date: '2026-05-10', city: 'Trujillo',        genre: 'House' },
+  { name: 'Fede Portella',       date: '2026-05-09', city: 'Cusco',           genre: 'House' },
+  { name: 'Macassi',             date: '2026-05-15', city: 'Cusco',           genre: 'House' },
+  { name: 'KOMANDO by Sinergia', date: '2026-05-08', city: 'Cusco',           genre: 'Techno' },
+  { name: 'Sinergia',            date: '2026-05-09', city: 'Cusco',           genre: 'Techno' },
+  { name: 'SACRA',               date: '2026-05-09', city: 'Cusco',           genre: 'Techno' },
+  { name: 'Naya Breda',          date: '2026-05-09', city: 'Piura',           genre: 'Techno' },
+  { name: 'LOUDR X SYNMYA 001',  date: '2026-05-16', city: 'Piura',           genre: 'House' },
+  { name: 'Vinyl Sessions',      date: '2026-05-08', city: 'Lobitos - Piura', genre: 'House' },
+];
+
+const sorted = [...events].sort((a,b) => a.date.localeCompare(b.date));
+const list = document.getElementById('events-list');
+sorted.forEach((e,i) => {
+  const d = new Date(e.date + 'T12:00:00');
+  const dateStr = d.toLocaleDateString('es-PE', { day:'2-digit', month:'2-digit', year:'numeric' });
+  list.innerHTML += `
+    <div class="event-row">
+      <span class="event-num">${String(i+1).padStart(2,'0')}</span>
+      <div class="event-info">
+        <span class="event-name">${e.name}</span>
+        <span class="event-city">${e.city}</span>
+      </div>
+      <span class="event-date">${dateStr}</span>
+      <span class="event-genre">${e.genre}</span>
+    </div>`;
+});
+
+let calYear = 2026, calMonth = 4;
+const monthNames = ['ENERO','FEBRERO','MARZO','ABRIL','MAYO','JUNIO','JULIO','AGOSTO','SEPTIEMBRE','OCTUBRE','NOVIEMBRE','DICIEMBRE'];
+
+function buildCalendar() {
+  document.getElementById('cal-label').textContent = monthNames[calMonth] + ' ' + calYear + '.';
+  const grid = document.getElementById('cal-grid');
+  grid.innerHTML = '';
+  ['LUN','MAR','MIÉ','JUE','VIE','SÁB','DOM'].forEach(d => { grid.innerHTML += `<div class="cal-header">${d}</div>`; });
+  const firstDay = new Date(calYear, calMonth, 1).getDay();
+  const offset = firstDay === 0 ? 6 : firstDay - 1;
+  const daysInMonth = new Date(calYear, calMonth+1, 0).getDate();
+  const today = new Date();
+  for (let i = 0; i < offset; i++) grid.innerHTML += `<div class="cal-day empty"></div>`;
+  for (let d = 1; d <= daysInMonth; d++) {
+    const dateStr = `${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const dayEvents = events.filter(e => e.date === dateStr);
+    const isToday = today.getFullYear()===calYear && today.getMonth()===calMonth && today.getDate()===d;
+    const dots = dayEvents.map(() => `<span class="cal-dot"></span>`).join('');
+    const tooltip = dayEvents.length ? `<div class="cal-tooltip">${dayEvents.map(e =>
+      `<div class="cal-tooltip-event"><strong>${e.name}</strong><br><span class="cal-tooltip-city">${e.city} · ${e.genre}</span></div>`).join('')}</div>` : '';
+    grid.innerHTML += `
+      <div class="cal-day ${dayEvents.length?'has-event':''} ${isToday?'today':''}">
+        <span class="cal-day-num">${d}</span>
+        <div class="cal-dots">${dots}</div>
+        ${tooltip}
+      </div>`;
+  }
+}
+document.getElementById('cal-prev').onclick = () => { calMonth--; if(calMonth<0){calMonth=11;calYear--;} buildCalendar(); };
+document.getElementById('cal-next').onclick = () => { calMonth++; if(calMonth>11){calMonth=0;calYear++;} buildCalendar(); };
+buildCalendar();
+
+async function handleSubmit() {
+  const nombre   = document.getElementById('f-nombre').value.trim();
+  const evento   = document.getElementById('f-evento').value.trim();
+  const fecha    = document.getElementById('f-fecha').value;
+  const contacto = document.getElementById('f-contacto').value.trim();
+  const desc     = document.getElementById('f-desc').value.trim();
+  const btn = document.getElementById('f-btn');
+  const msg = document.getElementById('f-msg');
+  if (!nombre||!evento||!fecha||!contacto) { msg.textContent='Completa todos los campos.'; return; }
+  btn.disabled = true; btn.textContent = 'Enviando...'; msg.textContent = '';
+  try {
+    await emailjs.send('service_lqwgpup','template_37l1z3u',{nombre,evento,fecha,contacto,descripcion:desc});
+    document.getElementById('submit-form').style.display = 'none';
+    document.getElementById('success-msg').style.display = 'block';
+  } catch(e) {
+    msg.textContent = 'Error al enviar. Escríbenos por Instagram.';
+    btn.disabled = false; btn.textContent = 'Submit Event →';
+  }
+}
+</script>
+</body>
+</html>
